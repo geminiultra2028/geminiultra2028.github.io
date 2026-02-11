@@ -1,0 +1,25 @@
+{
+  "name": "attendance-app",
+  "version": "1.0.0",
+  "description": "Attendance Records Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "localhost": "node server.js",
+    "check-network": "node check-network.js"
+  },
+  "keywords": [
+    "attendance",
+    "app"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.22.1",
+    "http-proxy-middleware": "^3.0.5",
+    "mssql": "^12.2.0",
+    "nodemailer": "^8.0.0",
+    "tedious": "^19.2.0"
+  }
+}

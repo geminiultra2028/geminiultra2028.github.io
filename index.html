@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Records</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Authentication Check -->
+    <script>
+        // Redirect unauthenticated users to login page
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <script src="settings.js"></script>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <img id="sidebarLogo" src="logo.png" alt="Attendance App Logo" class="sidebar-logo">
+                <h3 id="sidebarAppTitle" style="display: none;">Attendance App</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li class="active">
+                    <a href="#" id="sidebarDashboard"><i class="fas fa-home"></i> Dashboard</a>
+                </li>
+                <li>
+                    <a href="#" id="sidebarAttendance"><i class="fas fa-calendar-check"></i> Staff Portal</a>
+                </li>
+                <li>
+                    <a href="#" id="sidebarReports"><i class="fas fa-chart-bar"></i> Reports</a>
+                </li>
+                <li>
+                    <a href="#" id="sidebarEmployees"><i class="fas fa-users"></i> Profiles</a>
+                </li>
+                <li>
+                    <a href="#" id="sidebarSettings"><i class="fas fa-cog"></i> Settings</a>
+                </li>
+            </ul>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <div class="realtime-clock">
+                    <div class="clock-display" id="realtimeClock">00:00:00</div>
+                    <div class="clock-label" id="realtimeDate">01/01/2024</div>
+                </div>
+                <div class="sidebar-info">
+                    <div class="version">v1.0.0</div>
+                    <div class="creator">© 2026 PKNSB</div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <nav class="navbar">
+                <div class="container-fluid">
+                    <div class="navbar-left">
+                        <button type="button" id="sidebarCollapse" class="btn">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="navbar-brand">Attendance Records</span>
+                    </div>
+                    <div class="navbar-right">
+                        <!-- Profile Name Display -->
+                        <span class="navbar-profile-name" id="profileNameDisplay"></span>
+
+                        <!-- Dark/Light Mode Toggle -->
+                        <button class="btn btn-icon" id="themeToggleBtn" title="Toggle Dark Mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+
+                        <!-- Logout Button -->
+                        <button class="btn btn-icon btn-logout" id="logoutBtn" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="main-content">
+                <!-- Dashboard Section -->
+                <div id="dashboardSection" class="page-section active">
+                    <h2>Dashboard</h2>
+                    
+                    <!-- View Type Toggle -->
+                    <div class="view-type-toggle">
+                        <button class="toggle-btn active" id="monthlyViewBtn" data-view="monthly">Monthly</button>
+                        <button class="toggle-btn" id="yearlyViewBtn" data-view="yearly">Yearly</button>
+                    </div>
+
+                    <!-- Monthly View Section -->
+                    <div id="monthlyViewSection" class="view-section active">
+                        <!-- View Type Selector -->
+                        <div class="view-selector-container">
+                            <div class="selector-group">
+                                <label for="summaryMonth">Month:</label>
+                                <select id="summaryMonth" class="view-selector-dropdown">
+                                    <option value="01">January</option>
+                                    <option value="02">February</option>
+                                    <option value="03">March</option>
+                                    <option value="04">April</option>
+                                    <option value="05">May</option>
+                                    <option value="06">June</option>
+                                    <option value="07">July</option>
+                                    <option value="08">August</option>
+                                    <option value="09">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                            </div>
+                            <div class="selector-group">
+                                <label for="summaryYear">Year:</label>
+                                <select id="summaryYear" class="view-selector-dropdown">
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Monthly Summary Box -->
+                        <div class="summary-container">
+                            <div class="summary-box">
+                                <div class="summary-item">
+                                    <div class="summary-label">Present</div>
+                                    <div class="summary-value" id="totalPresent">0</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">MC</div>
+                                    <div class="summary-value" id="totalMC">0</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">EL</div>
+                                    <div class="summary-value" id="totalEL">0</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">AL</div>
+                                    <div class="summary-value" id="totalAL">0</div>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Late</div>
+                                    <div class="summary-value" id="totalLate">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calendar + Attendance Graph -->
+                        <div class="dashboard-calendar-graph">
+                            <!-- Small Calendar -->
+                            <div class="small-calendar-container">
+                                <div class="calendar-header">
+                                    <button class="calendar-nav-btn" id="prevMonthBtn" title="Previous Month">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <h3 id="calendarMonth"></h3>
+                                    <button class="calendar-nav-btn" id="nextMonthBtn" title="Next Month">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <div class="calendar-weekdays">
+                                    <div class="weekday">Sun</div>
+                                    <div class="weekday">Mon</div>
+                                    <div class="weekday">Tue</div>
+                                    <div class="weekday">Wed</div>
+                                    <div class="weekday">Thu</div>
+                                    <div class="weekday">Fri</div>
+                                    <div class="weekday">Sat</div>
+                                </div>
+                                <div class="calendar-days" id="calendarDays"></div>
+                            </div>
+
+                            <!-- Attendance Graph (stacked bars; legend only; no numbers) -->
+                            <div class="attendance-graph-container">
+                                <div class="attendance-graph-header">
+                                    <h3>Attendance Graph</h3>
+                                </div>
+
+                                <div class="attendance-graph-bars" id="attendanceGraphBars" aria-label="Attendance graph"></div>
+
+                                <div class="attendance-graph-legend" aria-label="Attendance legend">
+                                    <div class="attendance-legend-item"><span class="attendance-legend-swatch present"></span><span>Present</span></div>
+                                    <div class="attendance-legend-item"><span class="attendance-legend-swatch mc"></span><span>MC</span></div>
+                                    <div class="attendance-legend-item"><span class="attendance-legend-swatch el"></span><span>EL</span></div>
+                                    <div class="attendance-legend-item"><span class="attendance-legend-swatch al"></span><span>AL</span></div>
+                                    <div class="attendance-legend-item"><span class="attendance-legend-swatch late"></span><span>Late</span></div>
+                                    <div class="attendance-legend-item"><span class="attendance-legend-swatch halfday"></span><span>Halfday</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yearly View Section -->
+                    <div id="yearlyViewSection" class="view-section">
+                        <div class="yearly-selector-container">
+                            <label for="yearlyYear">Year:</label>
+                            <select id="yearlyYear" class="view-selector-dropdown">
+                            </select>
+                        </div>
+                        <div class="yearly-summary-grid" id="yearlySummaryGrid">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Staff Portal Section -->
+                <div id="attendanceSection" class="page-section">
+                    <h2>Staff Portal</h2>
+                    
+                    <!-- Documents Tabs -->
+                    <div class="documents-tabs">
+                        <button class="documents-tab-button active" data-tab="attendance-tab">
+                            <i class="fas fa-calendar-check"></i> Attendance
+                        </button>
+                        <button class="documents-tab-button" data-tab="travel-allowance-tab">
+                            <i class="fas fa-plane"></i> Travel Allowance
+                        </button>
+                        <button class="documents-tab-button" data-tab="ot-form-tab">
+                            <i class="fas fa-hourglass-end"></i> OT Form
+                        </button>
+                        <button class="documents-tab-button" data-tab="ot-approval-tab">
+                            <i class="fas fa-check-square"></i> OT Approval
+                        </button>
+                    </div>
+
+                    <!-- Attendance Tab -->
+                    <div id="attendance-tab" class="documents-tab-content active">
+                        <h3>Attendance Records</h3>
+                        
+                        <!-- Action Buttons -->
+                        <div class="action-panel">
+                            <div class="action-group">
+                                <button class="btn btn-check-in" id="checkInBtn">
+                                    <i class="fas fa-sign-in-alt"></i> Check-In & Check-Out
+                                </button>
+                            </div>
+                            <div class="action-group">
+                                <button class="btn btn-manual-checkin" id="manualCheckInBtn">
+                                    <i class="fas fa-clock"></i> Manual Check-In & Check-Out
+                                </button>
+                            </div>
+                            <div class="action-group">
+                                <button class="btn btn-overnight" id="markOvernightBtn">
+                                    <i class="fas fa-moon"></i> Shift (Overnight)
+                                </button>
+                            </div>
+                            <div class="action-group">
+                                <button class="btn btn-leave" id="markLeaveBtn">
+                                    <i class="fas fa-calendar-times"></i> Mark as Leave
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="auto-checkin-panel">
+                            <label class="checkbox-container auto-checkin-toggle">
+                                <input type="checkbox" id="gpsAutoCheckInUserToggle">
+                                <span>Auto Check-In (GPS, mobile only)</span>
+                            </label>
+                            <div class="auto-checkin-status" id="gpsAutoCheckInStatus">Auto check-in disabled.</div>
+                            <div class="auto-checkin-hint">Disabled by admin. GPS requires HTTPS or localhost.</div>
+                        </div>
+
+                        <!-- Record View Selector -->
+                        <div class="view-selector">
+                            <div class="view-selector-left">
+                                <div class="selector-group">
+                                    <label for="viewType">View Type:</label>
+                                    <select id="viewType" class="form-control">
+                                        <option value="monthly">Monthly Records</option>
+                                        <option value="yearly">Yearly Records</option>
+                                    </select>
+                                </div>
+
+                                <!-- Date Selector -->
+                                <div class="selector-group" id="dateSelector">
+                                    <label for="dateSelect">Select Period:</label>
+                                    <div class="date-selector-wrapper">
+                                        <button type="button" class="btn-nav" id="prevBtn" title="Previous">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <select id="dateSelect" class="form-control">
+                                            <option value="jan">January</option>
+                                            <option value="feb">February</option>
+                                            <option value="mar">March</option>
+                                            <option value="apr">April</option>
+                                            <option value="may">May</option>
+                                            <option value="jun">June</option>
+                                            <option value="jul">July</option>
+                                            <option value="aug">August</option>
+                                            <option value="sep">September</option>
+                                            <option value="oct">October</option>
+                                            <option value="nov">November</option>
+                                            <option value="dec">December</option>
+                                        </select>
+                                        <button type="button" class="btn-nav" id="nextBtn" title="Next">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="view-selector-right">
+                                <button class="btn btn-export" id="exportBtn" type="button">
+                                    <i class="fas fa-file-export"></i> Export
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Attendance Table -->
+                        <div class="table-responsive">
+                            <table class="table" id="attendanceTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Check In</th>
+                                        <th>Check Out</th>
+                                        <th>Duration</th>
+                                        <th>OT Start</th>
+                                        <th>OT End</th>
+                                        <th>OT Duration</th>
+                                        <th>OT Rate</th>
+                                        <th>OT Pay (RM)</th>
+                                        <th>Shift</th>
+                                        <th>Notes</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Travel Allowance Tab -->
+                    <div id="travel-allowance-tab" class="documents-tab-content">
+                        <h3>Travel Allowance</h3>
+                        <div class="view-selector-container">
+                            <div class="view-selector-left">
+                                <div class="selector-group">
+                                    <label for="travelPeriodType">Period Type:</label>
+                                    <select id="travelPeriodType" class="view-selector-dropdown">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                                <div class="selector-group" id="travelMonthGroup">
+                                    <label for="travelMonth">Month:</label>
+                                    <select id="travelMonth" class="view-selector-dropdown">
+                                        <option value="01">January</option>
+                                        <option value="02">February</option>
+                                        <option value="03">March</option>
+                                        <option value="04">April</option>
+                                        <option value="05">May</option>
+                                        <option value="06">June</option>
+                                        <option value="07">July</option>
+                                        <option value="08">August</option>
+                                        <option value="09">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
+                                <div class="selector-group">
+                                    <label for="travelYear">Year:</label>
+                                    <select id="travelYear" class="view-selector-dropdown"></select>
+                                </div>
+                            </div>
+                            <div class="view-selector-right">
+                                <button class="btn btn-export" id="travelExportBtn" type="button">
+                                    <i class="fas fa-file-export"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="travelAllowanceTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Day</th>
+                                        <th>Check-In</th>
+                                        <th>Check-Out</th>
+                                        <th>Attendance<br>allowance</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- OT Form Tab -->
+                    <div id="ot-form-tab" class="documents-tab-content">
+                        <h3>OT Form</h3>
+                        <div class="view-selector-container">
+                            <div class="view-selector-left">
+                                <div class="selector-group">
+                                    <label for="otFormPeriodType">Period Type:</label>
+                                    <select id="otFormPeriodType" class="view-selector-dropdown">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                                <div class="selector-group" id="otFormMonthGroup">
+                                    <label for="otFormMonth">Month:</label>
+                                    <select id="otFormMonth" class="view-selector-dropdown">
+                                        <option value="01">January</option>
+                                        <option value="02">February</option>
+                                        <option value="03">March</option>
+                                        <option value="04">April</option>
+                                        <option value="05">May</option>
+                                        <option value="06">June</option>
+                                        <option value="07">July</option>
+                                        <option value="08">August</option>
+                                        <option value="09">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
+                                <div class="selector-group">
+                                    <label for="otFormYear">Year:</label>
+                                    <select id="otFormYear" class="view-selector-dropdown"></select>
+                                </div>
+                            </div>
+                            <div class="view-selector-right">
+                                <button class="btn btn-export" id="otFormExportBtn" type="button">
+                                    <i class="fas fa-file-export"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="otFormTable">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2">Date</th>
+                                        <th colspan="2">Overtime Hours</th>
+                                        <th colspan="3">Total Working Hours</th>
+                                        <th rowspan="2">Shift (A/B)</th>
+                                        <th rowspan="2">Notes</th>
+                                        <th rowspan="2">Action</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Start OT</th>
+                                        <th>Check-out</th>
+                                        <th>1.5</th>
+                                        <th>2.0</th>
+                                        <th>3.0</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- OT Approval Tab -->
+                    <div id="ot-approval-tab" class="documents-tab-content">
+                        <h3>OT Approval</h3>
+                        <div class="view-selector-container">
+                            <div class="view-selector-left">
+                                <div class="selector-group">
+                                    <label for="otApprovalPeriodType">Period Type:</label>
+                                    <select id="otApprovalPeriodType" class="view-selector-dropdown">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+                                <div class="selector-group" id="otApprovalMonthGroup">
+                                    <label for="otApprovalMonth">Month:</label>
+                                    <select id="otApprovalMonth" class="view-selector-dropdown">
+                                        <option value="01">January</option>
+                                        <option value="02">February</option>
+                                        <option value="03">March</option>
+                                        <option value="04">April</option>
+                                        <option value="05">May</option>
+                                        <option value="06">June</option>
+                                        <option value="07">July</option>
+                                        <option value="08">August</option>
+                                        <option value="09">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
+                                <div class="selector-group">
+                                    <label for="otApprovalYear">Year:</label>
+                                    <select id="otApprovalYear" class="view-selector-dropdown"></select>
+                                </div>
+                            </div>
+                            <div class="view-selector-right">
+                                <button class="btn btn-export" id="otApprovalExportBtn" type="button">
+                                    <i class="fas fa-file-export"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="otApprovalTable">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2">No.</th>
+                                        <th rowspan="2">Date</th>
+                                        <th rowspan="2">Name</th>
+                                        <th colspan="2">Overtime Hours</th>
+                                        <th rowspan="2">Notes</th>
+                                        <th rowspan="2">Action</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Start OT</th>
+                                        <th>Check-out</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Section -->
+                <div id="reportsSection" class="page-section">
+                    <h2>Reports</h2>
+
+                    <!-- Reports Tabs (match Staff Portal tab styling) -->
+                    <div class="documents-tabs">
+                        <button class="documents-tab-button active" data-tab="reports-list-tab">
+                            <i class="fas fa-calculator"></i> OT Calculation
+                        </button>
+                        <button class="documents-tab-button" data-tab="reports-summary-tab">
+                            <i class="fas fa-table"></i> Summary Totals
+                        </button>
+                    </div>
+
+                    <!-- List Tab -->
+                    <div id="reports-list-tab" class="documents-tab-content active">
+                        <div class="reports-otcalc">
+                            <div class="reports-otcalc-header">
+                                <div>
+                                    <h3>OT Pay Calculation</h3>
+                                    <p class="reports-otcalc-subtitle">Overtime pay breakdown (1.5× / 2.0× / 3.0×) for the selected period.</p>
+                                </div>
+                            </div>
+
+                            <div class="view-selector-container reports-otcalc-filters">
+                                <div class="selector-group">
+                                    <label for="reportPeriodType">Period Type:</label>
+                                    <select id="reportPeriodType" class="view-selector-dropdown">
+                                        <option value="monthly">Monthly</option>
+                                        <option value="yearly">Yearly</option>
+                                    </select>
+                                </div>
+
+                                <div class="selector-group" id="reportMonthGroup">
+                                    <label for="reportMonth">Month:</label>
+                                    <select id="reportMonth" class="view-selector-dropdown">
+                                        <option value="01">January</option>
+                                        <option value="02">February</option>
+                                        <option value="03">March</option>
+                                        <option value="04">April</option>
+                                        <option value="05">May</option>
+                                        <option value="06">June</option>
+                                        <option value="07">July</option>
+                                        <option value="08">August</option>
+                                        <option value="09">September</option>
+                                        <option value="10">October</option>
+                                        <option value="11">November</option>
+                                        <option value="12">December</option>
+                                    </select>
+                                </div>
+
+                                <div class="selector-group">
+                                    <label for="reportYear">Year:</label>
+                                    <select id="reportYear" class="view-selector-dropdown"></select>
+                                </div>
+                            </div>
+
+                            <div class="reports-otcalc-period">
+                                <div class="reports-otcalc-period-row">
+                                    <div class="reports-otcalc-period-label">Period: <strong id="reportsOtPeriodLabel">-</strong></div>
+                                    <div class="reports-otcalc-period-count"><strong id="reportsOtRecordCount">0</strong> overtime record(s) found</div>
+                                </div>
+                            </div>
+
+                            <div class="reports-otcalc-cards">
+                                <div class="reports-otcalc-card">
+                                    <div class="reports-otcalc-card-title">1.5× (Monday–Saturday)</div>
+                                    <div class="reports-otcalc-metrics">
+                                        <div class="reports-otcalc-metric">
+                                            <div class="reports-otcalc-metric-label">Records</div>
+                                            <div class="reports-otcalc-metric-value" id="reportsOtRate15Count">0</div>
+                                        </div>
+                                        <div class="reports-otcalc-metric">
+                                            <div class="reports-otcalc-metric-label">Total Hours</div>
+                                            <div class="reports-otcalc-metric-value" id="reportsOtRate15Hours">0.00h</div>
+                                        </div>
+                                        <div class="reports-otcalc-metric">
+                                            <div class="reports-otcalc-metric-label">Total Pay</div>
+                                            <div class="reports-otcalc-metric-value" id="reportsOtRate15Pay">RM 0.00</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="reports-otcalc-card">
+                                    <div class="reports-otcalc-card-title">2.0× (Sunday)</div>
+                                    <div class="reports-otcalc-metrics">
+                                        <div class="reports-otcalc-metric">
+                                            <div class="reports-otcalc-metric-label">Records</div>
+                                            <div class="reports-otcalc-metric-value" id="reportsOtRate20Count">0</div>
+                                        </div>
+                                        <div class="reports-otcalc-metric">
+                                            <div class="reports-otcalc-metric-label">Total Hours</div>
+                                            <div class="reports-otcalc-metric-value" id="reportsOtRate20Hours">0.00h</div>
+                                        </div>
+                                        <div class="reports-otcalc-metric">
+                                            <div class="reports-otcalc-metric-label">Total Pay</div>
+                                            <div class="reports-otcalc-metric-value" id="reportsOtRate20Pay">RM 0.00</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="reports-otcalc-card">
+                                    <div class="reports-otcalc-card-title">3.0× (Public Holiday)</div>
+                                    <div class="reports-otcalc-metrics">
+                                        <div class="reports-otcalc-metric">
+                                            <div class="reports-otcalc-metric-label">Records</div>
+                                            <div class="reports-otcalc-metric-value" id="reportsOtRate30Count">0</div>
+                                        </div>
+                                        <div class="reports-otcalc-metric">
+                                            <div class="reports-otcalc-metric-label">Total Hours</div>
+                                            <div class="reports-otcalc-metric-value" id="reportsOtRate30Hours">0.00h</div>
+                                        </div>
+                                        <div class="reports-otcalc-metric">
+                                            <div class="reports-otcalc-metric-label">Total Pay</div>
+                                            <div class="reports-otcalc-metric-value" id="reportsOtRate30Pay">RM 0.00</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="reports-otcalc-grand">
+                                <div class="reports-otcalc-card-title">Grand Total</div>
+                                <div class="reports-otcalc-metrics">
+                                    <div class="reports-otcalc-metric">
+                                        <div class="reports-otcalc-metric-label">Records</div>
+                                        <div class="reports-otcalc-metric-value" id="reportsOtGrandCount">0</div>
+                                    </div>
+                                    <div class="reports-otcalc-metric">
+                                        <div class="reports-otcalc-metric-label">Total Hours</div>
+                                        <div class="reports-otcalc-metric-value" id="reportsOtGrandHours">0.00h</div>
+                                    </div>
+                                    <div class="reports-otcalc-metric">
+                                        <div class="reports-otcalc-metric-label">Total Pay</div>
+                                        <div class="reports-otcalc-metric-value" id="reportsOtGrandPay">RM 0.00</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="reports-otcalc-footer-note">
+                                Note: Values are calculated from saved OT details (hours/pay) stored in the Attendance records.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Summary Totals Tab -->
+                    <div id="reports-summary-tab" class="documents-tab-content">
+                        <h3>Summary Totals (Yearly)</h3>
+
+                        <div class="yearly-selector-container">
+                            <label for="reportSummaryYear">Year:</label>
+                            <select id="reportSummaryYear" class="view-selector-dropdown"></select>
+                        </div>
+
+                        <p style="margin: 6px 0 14px; font-size: 0.95em; color: #666;">
+                            Reporting period covers <strong>January–December</strong> for the selected year.
+                        </p>
+
+                        <div class="table-responsive">
+                            <table class="table" id="reportsSummaryTotalsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>MC</th>
+                                        <th>AL</th>
+                                        <th>EL</th>
+                                        <th>Late</th>
+                                        <th>Halfday</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportsSummaryTotalsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profiles/Employees Section -->
+                <div id="employeesSection" class="page-section">
+                    <h2>My Profile</h2>
+                    
+                    <div class="profile-container">
+                        <div class="profile-card">
+                            <h3>Personal Information</h3>
+                            <form id="profileForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="profileName">
+                                            <i class="fas fa-user"></i> Full Name
+                                        </label>
+                                        <input type="text" id="profileName" class="form-control" placeholder="Enter your full name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="profileStaffID">
+                                            <i class="fas fa-id-card"></i> Staff ID
+                                        </label>
+                                        <input type="text" id="profileStaffID" class="form-control" placeholder="Enter your staff ID" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="profileDepartment">
+                                            <i class="fas fa-building"></i> Department
+                                        </label>
+                                        <input type="text" id="profileDepartment" class="form-control" placeholder="Enter your department" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="profileApprover">
+                                            <i class="fas fa-user-tie"></i> Approver (Head of Department)
+                                        </label>
+                                        <input type="text" id="profileApprover" class="form-control" placeholder="Enter approver's name" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="profileSalary">
+                                            <i class="fas fa-money-bill-wave"></i> Basic Salary (RM)
+                                        </label>
+                                        <input type="number" id="profileSalary" class="form-control" placeholder="Enter basic salary" step="0.01" required>
+                                    </div>
+                                    <div class="form-group"></div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Save Changes
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="cancelProfileBtn">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                </div>
+
+                                <div id="profileMessage" class="profile-message" style="display: none;"></div>
+                            </form>
+                        </div>
+                        
+                        <!-- Current Profile Information Display -->
+                        <div class="profile-display">
+                            <h3>Current Information</h3>
+                            <div class="profile-display-card">
+                                <div class="profile-info-row">
+                                    <div class="profile-info-label">Name:</div>
+                                    <div class="profile-info-value" id="displayName">-</div>
+                                </div>
+                                <div class="profile-info-row">
+                                    <div class="profile-info-label">Staff ID:</div>
+                                    <div class="profile-info-value" id="displayStaffId">-</div>
+                                </div>
+                                <div class="profile-info-row">
+                                    <div class="profile-info-label">Department:</div>
+                                    <div class="profile-info-value" id="displayDepartment">-</div>
+                                </div>
+                                <div class="profile-info-row">
+                                    <div class="profile-info-label">Approver:</div>
+                                    <div class="profile-info-value" id="displayApprover">-</div>
+                                </div>
+                                <div class="profile-info-row">
+                                    <div class="profile-info-label">Basic Salary:</div>
+                                    <div class="profile-info-value" id="displaySalary">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="settingsSection" class="page-section">
+                    <h2>Settings</h2>
+                    
+                    <!-- Settings Tabs -->
+                    <div class="settings-tabs">
+                        <button class="tab-button active" data-tab="database-tab">
+                            <i class="fas fa-database"></i> Database Connection
+                        </button>
+                        <button class="tab-button" data-tab="users-tab">
+                            <i class="fas fa-users-cog"></i> User Management
+                        </button>
+                        <button class="tab-button" data-tab="email-tab">
+                            <i class="fas fa-envelope"></i> Email
+                        </button>
+                        <button class="tab-button" data-tab="gps-tab">
+                            <i class="fas fa-map-marker-alt"></i> GPS Auto Check-In
+                        </button>
+                        <button class="tab-button" data-tab="logo-tab">
+                            <i class="fas fa-image"></i> Upload Logo for PDF Export
+                        </button>
+                        <button class="tab-button" data-tab="background-tab">
+                            <i class="fas fa-palette"></i> Background Settings
+                        </button>
+                    </div>
+
+                    <!-- Settings Content -->
+                    <div class="settings-content">
+                        <!-- Database Connection Tab -->
+                        <div id="database-tab" class="tab-content active">
+                            <h4>Database Connection Settings</h4>
+                            <form id="databaseForm">
+                                <div class="form-group">
+                                    <label for="dbType">Database Type:</label>
+                                    <select id="dbType" class="form-control" required>
+                                        <option value="">Select Database Type</option>
+                                        <option value="mysql">MySQL</option>
+                                        <option value="sqlserver">Microsoft SQL Server</option>
+                                        <option value="postgresql">PostgreSQL</option>
+                                        <option value="sqlite">SQLite</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dbHost">Database Host:</label>
+                                    <input type="text" id="dbHost" class="form-control" placeholder="e.g., localhost" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dbPort">Port:</label>
+                                    <input type="number" id="dbPort" class="form-control" placeholder="e.g., 3306" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dbName">Database Name:</label>
+                                    <input type="text" id="dbName" class="form-control" placeholder="e.g., attendance_db" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dbUser">Username:</label>
+                                    <input type="text" id="dbUser" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dbPassword">Password:</label>
+                                    <input type="password" id="dbPassword" class="form-control" required>
+                                </div>
+                                <div class="form-group button-group">
+                                    <button type="button" class="btn btn-test" id="testConnectionBtn">
+                                        <i class="fas fa-plug"></i> Test Connection
+                                    </button>
+                                    <button type="submit" class="btn btn-confirm">
+                                        <i class="fas fa-save"></i> Save Connection
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- User Management Tab -->
+                        <div id="users-tab" class="tab-content">
+                            <h4>User Management</h4>
+                            <p>Manage application users and permissions.</p>
+                            <div class="form-group" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <button type="button" class="btn btn-add" id="addUserBtn">
+                                        <i class="fas fa-user-plus"></i> Add New User
+                                    </button>
+                                    <button type="button" class="btn btn-edit" id="roleAccessControlBtn">
+                                        <i class="fas fa-lock"></i> Access Control
+                                    </button>
+                                </div>
+                                <div style="display: flex; justify-content: flex-end;">
+                                    <button type="button" class="btn btn-add" id="importUsersBtn">
+                                        <i class="fas fa-file-upload"></i> Import Users
+                                    </button>
+                                    <input type="file" id="importUsersFileInput" accept=".csv,text/csv" style="display: none;" />
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>User ID</th>
+                                            <th>Full Name</th>
+                                            <th>Staff ID</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <!-- Users will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Email Settings Tab -->
+                        <div id="email-tab" class="tab-content">
+                            <h4>SMTP Configuration</h4>
+                            <p class="info-text"><i class="fas fa-info-circle"></i> Configure SMTP settings used to deliver Forgot Password OTP emails.</p>
+                            <form id="emailSettingsForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="smtpHost">SMTP Host</label>
+                                        <input type="text" id="smtpHost" class="form-control" placeholder="smtp.example.com" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="smtpPort">SMTP Port</label>
+                                        <input type="number" id="smtpPort" class="form-control" placeholder="587" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpUsername">SMTP Username</label>
+                                    <input type="text" id="smtpUsername" class="form-control" placeholder="smtp user" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpPassword">SMTP Password</label>
+                                    <input type="password" id="smtpPassword" class="form-control" placeholder="smtp password" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpFromEmail">From Email</label>
+                                    <input type="email" id="smtpFromEmail" class="form-control" placeholder="no-reply@company.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpFromName">From Name</label>
+                                    <input type="text" id="smtpFromName" class="form-control" placeholder="Attendance System">
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpSecure">Connection Security</label>
+                                    <select id="smtpSecure" class="form-control">
+                                        <option value="tls" selected>STARTTLS (Recommended)</option>
+                                        <option value="ssl">SSL/TLS</option>
+                                        <option value="none">None</option>
+                                    </select>
+                                </div>
+                                <div class="form-group button-group">
+                                    <button type="button" class="btn btn-test" id="testSmtpBtn">
+                                        <i class="fas fa-plug"></i> Test SMTP Connection
+                                    </button>
+                                    <button type="submit" class="btn btn-confirm" id="saveEmailSettingsBtn">
+                                        <i class="fas fa-save"></i> Save SMTP Settings
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- GPS Auto Check-In Tab -->
+                        <div id="gps-tab" class="tab-content">
+                            <h4>GPS Auto Check-In</h4>
+                            <p class="info-text"><i class="fas fa-info-circle"></i> Configure office GPS coordinates and radius for automatic check-in on mobile devices. Requires HTTPS/localhost and location permission.</p>
+                            <form id="gpsAutoCheckInForm">
+                                <div class="form-group">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="gpsAutoCheckInEnabled">
+                                        Enable GPS auto check-in (global)
+                                    </label>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="gpsOfficeLat">Office Latitude</label>
+                                        <input type="number" step="0.000001" id="gpsOfficeLat" class="form-control" placeholder="e.g., 3.1390">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gpsOfficeLng">Office Longitude</label>
+                                        <input type="number" step="0.000001" id="gpsOfficeLng" class="form-control" placeholder="e.g., 101.6869">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="gpsAutoCheckInRadius">Radius (meters)</label>
+                                        <input type="number" id="gpsAutoCheckInRadius" class="form-control" min="20" max="2000" placeholder="150">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gpsAutoCheckInAccuracy">Max Accuracy (meters)</label>
+                                        <input type="number" id="gpsAutoCheckInAccuracy" class="form-control" min="10" max="1000" placeholder="120">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gpsAutoCheckInCooldown">Cooldown (minutes)</label>
+                                        <input type="number" id="gpsAutoCheckInCooldown" class="form-control" min="1" max="720" placeholder="60">
+                                    </div>
+                                </div>
+                                <div class="form-group button-group">
+                                    <button type="button" class="btn btn-test" id="gpsUseCurrentLocationBtn">
+                                        <i class="fas fa-crosshairs"></i> Use Current Location
+                                    </button>
+                                    <button type="submit" class="btn btn-confirm" id="saveGpsSettingsBtn">
+                                        <i class="fas fa-save"></i> Save GPS Settings
+                                    </button>
+                                </div>
+                                <div class="gps-settings-status" id="gpsSettingsStatus">Office GPS location not set.</div>
+                            </form>
+                        </div>
+
+                        <!-- Upload Logo for PDF Export Tab -->
+                        <div id="logo-tab" class="tab-content">
+                            <h4>Upload Logo for PDF Export</h4>
+                            <p class="info-text"><i class="fas fa-info-circle"></i> Not all PDFs will include a logo; logos will follow the provided layout.</p>
+                            
+                            <div class="logo-upload-section">
+                                <div class="logo-upload-group">
+                                    <h5>Company Logo</h5>
+                                    <div class="upload-area" id="companyLogoUpload">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload or drag and drop</p>
+                                        <p class="small-text">PNG, JPG, GIF up to 5MB</p>
+                                        <input type="file" id="companyLogoInput" class="file-input" accept="image/*" style="display: none;">
+                                    </div>
+                                    <div id="companyLogoPreview" class="logo-preview"></div>
+                                </div>
+
+                                <div class="logo-upload-group">
+                                    <h5>Department Logo</h5>
+                                    <div class="upload-area" id="deptLogoUpload">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Click to upload or drag and drop</p>
+                                        <p class="small-text">PNG, JPG, GIF up to 5MB</p>
+                                        <input type="file" id="deptLogoInput" class="file-input" accept="image/*" style="display: none;">
+                                    </div>
+                                    <div id="deptLogoPreview" class="logo-preview"></div>
+                                </div>
+                            </div>
+
+                            <div class="logo-save-actions">
+                                <button type="button" class="btn btn-confirm" id="saveLogosBtn">Save Company Logo</button>
+                                <button type="button" class="btn btn-confirm" id="saveDeptLogoBtn">Save Department Logo</button>
+                            </div>
+
+                            <div class="logo-remove-actions">
+                                <button type="button" class="btn btn-remove" id="removeCompanyLogoBtn" style="display: none;">
+                                    <i class="fas fa-trash"></i> Remove Logo
+                                </button>
+                                <button type="button" class="btn btn-remove" id="removeDeptLogoBtn" style="display: none;">
+                                    <i class="fas fa-trash"></i> Remove Logo
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Background Settings Tab -->
+                        <div id="background-tab" class="tab-content">
+                            <h4>Background Settings</h4>
+                            <p class="info-text"><i class="fas fa-info-circle"></i> Customize the login page background with images, videos, or colors.</p>
+
+                            <div class="background-settings-section">
+                                <div class="background-option">
+                                    <label for="imageUploadSettings">
+                                        <i class="fas fa-image"></i> Upload Image Background
+                                    </label>
+                                    <input type="file" id="imageUploadSettings" accept="image/*" class="file-input">
+                                    <small>Supports: JPG, PNG, GIF, WebP, SVG, BMP, etc.</small>
+                                    <div class="background-upload-status" id="imageUploadStatus">No image uploaded yet.</div>
+                                </div>
+
+                                <div class="background-option">
+                                    <label for="videoUploadSettings">
+                                        <i class="fas fa-video"></i> Upload Video Background
+                                    </label>
+                                    <input type="file" id="videoUploadSettings" accept="video/*" class="file-input">
+                                    <small>Supports: MP4, WebM, Ogg, MOV, AVI, etc.</small>
+                                    <div class="background-upload-status" id="videoUploadStatus">No video uploaded yet.</div>
+                                </div>
+
+                                <div class="background-option">
+                                    <label for="backgroundColorSettings">
+                                        <i class="fas fa-palette"></i> Or Choose Background Color
+                                    </label>
+                                    <input type="color" id="backgroundColorSettings" class="color-input" value="#667eea">
+                                </div>
+                            </div>
+
+                            <div class="background-actions">
+                                <button type="button" class="btn btn-confirm" id="resetBackgroundBtn">
+                                    <i class="fas fa-redo"></i> Reset to Default
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Check-In Modal -->
+            <div id="checkInModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeCheckInModal">&times;</span>
+                    <h3>Check-In Confirmation</h3>
+                    <p>Check-in time: <strong id="checkInTime"></strong></p>
+                    <p>Current time: <strong id="currentTime"></strong></p>
+                    <div class="form-group">
+                        <label for="checkInNotes">Notes (Optional):</label>
+                        <textarea id="checkInNotes" class="form-control" placeholder="Add any notes" rows="3"></textarea>
+                    </div>
+                    <div class="shift-buttons" style="display:none;">
+                        <button class="btn btn-shift" id="shiftACheckInBtn">Shift A</button>
+                        <button class="btn btn-shift" id="shiftBCheckInBtn">Shift B</button>
+                    </div>
+                    <button class="btn btn-confirm" id="confirmCheckInBtn">Confirm Check-In</button>
+                    <button class="btn btn-cancel" id="cancelCheckInBtn">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Mark as Leave Modal -->
+            <div id="leaveModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeLeaveModal">&times;</span>
+                    <h3>Mark as Leave</h3>
+                    <form id="leaveForm">
+                        <div class="form-group">
+                            <label for="leaveType">Leave Type:</label>
+                            <select id="leaveType" class="form-control" required>
+                                <option value="">-- Select Leave Type --</option>
+                                <option value="medical">Medical Leave</option>
+                                <option value="annual">Annual Leave</option>
+                                <option value="emergency">Emergency Leave</option>
+                                <option value="compassionate">Compassionate Leave</option>
+                                <option value="public">Public Holiday</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="leaveDate">Select Date:</label>
+                            <input type="date" id="leaveDate" class="form-control" required>
+                        </div>
+                        <div class="form-group" id="leaveDetailsGroup" style="display: none;">
+                            <label for="leaveDetails">Details/Reason:</label>
+                            <textarea id="leaveDetails" class="form-control" placeholder="Enter leave details or reason" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="leaveNotes">Notes (Optional):</label>
+                            <textarea id="leaveNotes" class="form-control" placeholder="Add any notes" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-confirm">Submit Leave</button>
+                        <button type="button" class="btn btn-cancel" id="cancelLeaveBtn">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Manual Check-In Modal -->
+            <div id="manualCheckInModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeManualCheckInModal">&times;</span>
+                    <h3>Manual Check-In</h3>
+                    <form id="manualCheckInForm">
+                        <div class="form-group">
+                            <label for="manualCheckInDate">Select Date:</label>
+                            <input type="date" id="manualCheckInDate" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="manualCheckInTime">Select Time:</label>
+                            <input type="time" id="manualCheckInTime" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="manualCheckInNotes">Notes (Optional):</label>
+                            <textarea id="manualCheckInNotes" class="form-control" placeholder="Add any notes" rows="3"></textarea>
+                        </div>
+                        <div class="shift-buttons" style="display:none;">
+                            <button type="button" class="btn btn-shift" id="shiftAManualBtn">Shift A</button>
+                            <button type="button" class="btn btn-shift" id="shiftBManualBtn">Shift B</button>
+                        </div>
+                        <button type="submit" class="btn btn-confirm">Submit Check-In</button>
+                        <button type="button" class="btn btn-cancel" id="cancelManualCheckInBtn">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Overnight Shift Modal -->
+            <div id="overnightModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeOvernightModal">&times;</span>
+                    <h3>Mark Overnight Shift</h3>
+                    <div class="shift-info-box">
+                        <p><i class="fas fa-info-circle"></i> Select the check-out date (the list will follow your selected date)</p>
+                    </div>
+                    <form id="overnightForm">
+                        <div class="form-group">
+                            <label for="shiftDate">Shift Start Date:</label>
+                            <input type="date" id="shiftDate" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="shiftCheckInTime">Check-In Time:</label>
+                            <input type="time" id="shiftCheckInTime" class="form-control" required>
+                        </div>
+                        <div class="form-group" id="checkOutDateGroup" style="display: none;">
+                            <label for="shiftCheckOutDate">Check-Out Date:</label>
+                            <input type="date" id="shiftCheckOutDate" class="form-control">
+                        </div>
+                        <div class="form-group" id="checkOutTimeGroup" style="display: none;">
+                            <label for="shiftCheckOutTime">Check-Out Time:</label>
+                            <input type="time" id="shiftCheckOutTime" class="form-control">
+                        </div>
+                        <div class="form-display">
+                            <!-- Date display removed -->
+                        </div>
+                        <div class="form-group">
+                            <label for="shiftNotes">Notes (Optional):</label>
+                            <textarea id="shiftNotes" class="form-control" placeholder="Add shift notes" rows="3"></textarea>
+                        </div>
+                        <div class="shift-buttons" style="display:none;">
+                            <button type="button" class="btn btn-shift" id="shiftAOvernightBtn">Shift A</button>
+                            <button type="button" class="btn btn-shift" id="shiftBOvernightBtn">Shift B</button>
+                        </div>
+                        <button type="submit" class="btn btn-confirm">Submit Check-In</button>
+                        <button type="button" class="btn btn-cancel" id="cancelOvernightBtn">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Notes Modal -->
+            <div id="notesModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeNotesModal">&times;</span>
+                    <h3>Record Notes</h3>
+                    <div class="notes-info">
+                        <p><strong>Date:</strong> <span id="notesDate">-</span></p>
+                        <p><strong>Check In:</strong> <span id="notesCheckIn">-</span></p>
+                        <p><strong>Check Out:</strong> <span id="notesCheckOut">-</span></p>
+                    </div>
+                    <form id="notesForm">
+                        <div class="form-group">
+                            <label for="notesText">Notes:</label>
+                            <textarea id="notesText" class="form-control" placeholder="Add notes for this record" rows="5"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-confirm">Save Notes</button>
+                        <button type="button" class="btn btn-cancel" id="cancelNotesBtn">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit OT Modal -->
+            <div id="editOTModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" id="closeEditOTModal">&times;</span>
+                    <h3>Edit OT (Overtime)</h3>
+                    <form id="editOTForm">
+                        <div class="form-group">
+                            <label for="otDate">Date:</label>
+                            <input type="text" id="otDate" class="form-control" disabled>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="otCheckOut">Last Check-Out:</label>
+                            <input type="text" id="otCheckOut" class="form-control" disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="otStartTime">Overtime Start Time: <span style="color: red;">*</span></label>
+                            <input type="time" id="otStartTime" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="otBasicSalary">Basic Salary (RM):</label>
+                            <input type="number" id="otBasicSalary" class="form-control" disabled step="0.01">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="otRate">OT Rate: <span style="color: red;">*</span></label>
+                            <select id="otRate" class="form-control" required>
+                                <option value="">Select OT Rate</option>
+                                <option value="1.5">1.5× (Monday–Saturday)</option>
+                                <option value="2.0">2.0× (Sunday)</option>
+                                <option value="3.0">3.0× (Public Holiday)</option>
+                            </select>
+                            <small id="otRateNote" style="color: #666; margin-top: 5px; display: block;"></small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="otHours">OT Hours:</label>
+                            <input type="number" id="otHours" class="form-control" disabled step="0.25">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="otPayAmount">OT Pay (RM):</label>
+                            <input type="number" id="otPayAmount" class="form-control" disabled step="0.01">
+                            <small style="color: #666; margin-top: 5px; display: block;">Formula: (Basic Salary / 195) × OT Hours × OT Rate</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-confirm">Save OT Details</button>
+                        <button type="button" class="btn btn-cancel" id="cancelEditOTBtn">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+
+        <!-- Export Modal -->
+        <div id="exportModal" class="modal">
+            <div class="modal-content modal-medium">
+                    <span class="close" id="closeExportModal">&times;</span>
+                    <h3>Export Attendance</h3>
+
+                    <div class="form-group">
+                        <label for="exportPeriodType">Selection:</label>
+                        <select id="exportPeriodType" class="form-control" required>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+
+                    <div class="export-period-row">
+                        <div class="form-group" id="exportMonthGroup">
+                            <label for="exportMonth">Month:</label>
+                            <select id="exportMonth" class="form-control">
+                                <option value="01">January</option>
+                                <option value="02">February</option>
+                                <option value="03">March</option>
+                                <option value="04">April</option>
+                                <option value="05">May</option>
+                                <option value="06">June</option>
+                                <option value="07">July</option>
+                                <option value="08">August</option>
+                                <option value="09">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="exportYear">Year:</label>
+                            <select id="exportYear" class="form-control"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Format:</label>
+                        <div class="export-format-buttons">
+                            <button type="button" class="btn btn-action" data-export-format="csv">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </button>
+                            <button type="button" class="btn btn-action" data-export-format="pdf">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                        </div>
+                        <small class="info-text" style="display:block; margin-top: 8px;">PDF export downloads directly as a file.</small>
+                    </div>
+
+                    <button type="button" class="btn btn-cancel" id="cancelExportBtn">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- User Access Control Modal -->
+    <div id="userAccessModal" class="modal">
+        <div class="modal-content modal-medium">
+            <span class="close" id="closeUserAccessModal">&times;</span>
+            <h3>User Access Control</h3>
+            <form id="userAccessForm">
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input type="text" id="accessUsername" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Access Permissions:</label>
+                    <div class="access-permissions">
+                        <div class="permission-item">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="accessSettingsMenu">
+                                <span class="checkmark"></span>
+                                Settings Menu
+                            </label>
+                        </div>
+                        <div class="permission-item">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="accessSettingsPage">
+                                <span class="checkmark"></span>
+                                Settings Page
+                            </label>
+                        </div>
+                        <div class="permission-item">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="accessHideSignSv">
+                                <span class="checkmark"></span>
+                                Hide Sign SV (OT Form)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-confirm">Save Permissions</button>
+                    <button type="button" class="btn btn-cancel" id="cancelUserAccessBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Role-Based Access Control Modal -->
+    <div id="roleAccessControlModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" id="closeRoleAccessControlModal">&times;</span>
+            <h3>Role-Based Access Control</h3>
+            <p style="font-size: 0.95em; color: #666; margin-bottom: 20px;">Configure access permissions for each role. These permissions will apply to all users with the selected role.</p>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Settings Menu</th>
+                            <th>Manual In &amp; Out</th>
+                            <th>Shift O Lock</th>
+                            <th>Hide Sign SV</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roleAccessTableBody">
+                        <!-- Roles will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn btn-cancel" id="closeRoleAccessControlBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Role Access Modal -->
+    <div id="editRoleAccessModal" class="modal">
+        <div class="modal-content modal-medium">
+            <span class="close" id="closeEditRoleAccessModal">&times;</span>
+            <h3>Edit Role Access Control</h3>
+            <form id="editRoleAccessForm">
+                <div class="form-group">
+                    <label>Role:</label>
+                    <input type="text" id="editAccessRole" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Access Permissions:</label>
+                    <div class="access-permissions">
+                        <div class="permission-item">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="editAccessSettingsMenu">
+                                <span class="checkmark"></span>
+                                Settings Menu
+                            </label>
+                        </div>
+                        <div class="permission-item">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="editAccessManualInOut">
+                                <span class="checkmark"></span>
+                                Manual Check-In &amp; Check-out
+                            </label>
+                        </div>
+                        <div class="permission-item">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="editAccessShiftOLock">
+                                <span class="checkmark"></span>
+                                Lock Editable for Shift (Overnight)
+                            </label>
+                        </div>
+                        <div class="permission-item">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="editAccessHideSignSv">
+                                <span class="checkmark"></span>
+                                Hide Sign SV (OT Form)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-confirm">Save Permissions</button>
+                    <button type="button" class="btn btn-cancel" id="cancelEditRoleAccessBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+<script>
+// Authentication Check
+document.addEventListener('DOMContentLoaded', function() {
+    const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+    if (isLoggedIn !== 'true') {
+        window.location.href = 'login.html';
+    }
+});
+
+// Navigation for all sidebar menu items
+const sidebarDashboard = document.getElementById("sidebarDashboard");
+const sidebarAttendance = document.getElementById("sidebarAttendance");
+const sidebarEmployees = document.getElementById("sidebarEmployees");
+const sidebarReports = document.getElementById("sidebarReports");
+const sidebarSettings = document.getElementById("sidebarSettings");
+
+const dashboardSection = document.getElementById("dashboardSection");
+const attendanceSection = document.getElementById("attendanceSection");
+const employeesSection = document.getElementById("employeesSection");
+const reportsSection = document.getElementById("reportsSection");
+const settingsSection = document.getElementById("settingsSection");
+
+// Function to handle navigation
+function navigateTo(sectionElement, sidebarElement) {
+    // Hide all sections
+    document.querySelectorAll(".page-section").forEach(section => {
+        section.classList.remove("active");
+    });
+    
+    // Show the selected section
+    if (sectionElement) {
+        sectionElement.classList.add("active");
+    }
+    
+    // Update sidebar active state
+    document.querySelectorAll(".list-unstyled li").forEach(item => {
+        item.classList.remove("active");
+    });
+    
+    if (sidebarElement && sidebarElement.parentElement) {
+        sidebarElement.parentElement.classList.add("active");
+    }
+}
+
+// Dashboard navigation
+if (sidebarDashboard) {
+    sidebarDashboard.addEventListener("click", function(e) {
+        e.preventDefault();
+        navigateTo(dashboardSection, sidebarDashboard);
+    });
+}
+
+// Documents navigation
+if (sidebarAttendance) {
+    sidebarAttendance.addEventListener("click", function(e) {
+        e.preventDefault();
+        navigateTo(attendanceSection, sidebarAttendance);
+    });
+}
+
+// Profiles navigation
+if (sidebarEmployees) {
+    sidebarEmployees.addEventListener("click", function(e) {
+        e.preventDefault();
+        navigateTo(employeesSection, sidebarEmployees);
+    });
+}
+
+// Reports navigation
+if (sidebarReports) {
+    sidebarReports.addEventListener("click", function(e) {
+        e.preventDefault();
+        navigateTo(reportsSection, sidebarReports);
+    });
+}
+
+// Settings navigation
+if (sidebarSettings) {
+    sidebarSettings.addEventListener("click", function(e) {
+        e.preventDefault();
+        navigateTo(settingsSection, sidebarSettings);
+    });
+}
+
+// Staff Portal action buttons and all attendance modal behavior are handled in script.js.
+// This page previously contained legacy inline handlers (show*Modal + confirm/cancel/form-submit)
+// which ran after script.js and silently overrode the real logic.
+
+// Settings tabs functionality
+const tabButtons = document.querySelectorAll(".tab-button");
+const tabContents = document.querySelectorAll(".tab-content");
+
+tabButtons.forEach(button => {
+    button.addEventListener("click", function() {
+        const tabId = this.getAttribute("data-tab");
+        
+        // Remove active class from all tabs and contents
+        tabButtons.forEach(btn => btn.classList.remove("active"));
+        tabContents.forEach(content => content.classList.remove("active"));
+        
+        // Add active class to clicked tab and corresponding content
+        this.classList.add("active");
+        const tabContent = document.getElementById(tabId);
+        if (tabContent) {
+            tabContent.classList.add("active");
+        }
+    });
+});
+
+// Hamburger menu functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarCollapse = document.getElementById("sidebarCollapse");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarFooter = document.querySelector(".sidebar-footer");
+
+// Initialize footer position and behavior
+if (sidebarFooter) {
+    // Set initial styles for the footer
+    sidebarFooter.style.position = "fixed";
+    sidebarFooter.style.bottom = "0";
+    sidebarFooter.style.left = "0";
+    sidebarFooter.style.zIndex = "1000";
+    sidebarFooter.style.transition = "all 0.3s ease";
+    
+    // Set initial visibility based on sidebar state
+    updateFooterVisibility();
+}
+
+// Function to update footer visibility based on sidebar state
+function updateFooterVisibility() {
+    if (sidebarFooter) {
+        const isSidebarActive = sidebar.classList.contains("active");
+        
+        // When sidebar has "active" class, it is HIDDEN (margin-left: -250px)
+        // When sidebar does NOT have "active" class, it is VISIBLE
+        if (isSidebarActive) {
+            // Sidebar is hidden, so hide the footer
+            sidebarFooter.style.width = "0px";
+            sidebarFooter.style.opacity = "0";
+            sidebarFooter.style.visibility = "hidden";
+        } else {
+            // Sidebar is visible, so show the footer
+            sidebarFooter.style.width = "250px";
+            sidebarFooter.style.opacity = "1";
+            sidebarFooter.style.visibility = "visible";
+        }
+    }
+}
+
+if (sidebarCollapse && sidebar) {
+    sidebarCollapse.addEventListener("click", function() {
+        // Toggle the sidebar
+        sidebar.classList.toggle("active");
+        
+        // Update footer visibility
+        updateFooterVisibility();
+    });
+}
+
+// Language toggle functionality
+const languageToggle = document.getElementById("languageToggle");
+
+if (languageToggle) {
+    languageToggle.addEventListener("click", function() {
+        // Toggle between English and Malay
+        const isMalay = document.body.classList.toggle("malay-lang");
+        
+        // Update language button text
+        this.innerHTML = isMalay ? '<i class="fas fa-globe"></i> EN' : '<i class="fas fa-globe"></i> BM';
+        
+        // Store language preference
+        localStorage.setItem("language", isMalay ? "malay" : "english");
+        
+        // Update UI text based on language
+        updateLanguage(isMalay ? "malay" : "english");
+    });
+    
+    // Load saved language preference
+    const savedLanguage = localStorage.getItem("language");
+    if (savedLanguage === "malay") {
+        document.body.classList.add("malay-lang");
+        languageToggle.innerHTML = '<i class="fas fa-globe"></i> EN';
+        updateLanguage("malay");
+    }
+}
+
+// Theme + Logout are handled in script.js (initializeThemeToggle / initializeLogout)
+
+// Function to update UI language
+function updateLanguage(language) {
+    // Dictionary for translations
+    const translations = {
+        malay: {
+            dashboard: "Papan Pemuka",
+            documents: "Portal Kakitangan",
+            profiles: "Profil",
+            reports: "Laporan",
+            settings: "Tetapan",
+            checkIn: "Daftar Masuk",
+            manualCheckIn: "Daftar Masuk Manual",
+            overnight: "Syif (Malam)",
+            markLeave: "Tandakan Cuti"
+        },
+        english: {
+            dashboard: "Dashboard",
+            documents: "Staff Portal",
+            profiles: "Profiles",
+            reports: "Reports",
+            settings: "Settings",
+            checkIn: "Check-In",
+            manualCheckIn: "Manual Check-In",
+            overnight: "Shift (Overnight)",
+            markLeave: "Mark as Leave"
+        }
+    };
+    
+    // Update sidebar navigation
+    const sidebarDashboard = document.getElementById("sidebarDashboard");
+    const sidebarAttendance = document.getElementById("sidebarAttendance");
+    const sidebarEmployees = document.getElementById("sidebarEmployees");
+    const sidebarReports = document.getElementById("sidebarReports");
+    const sidebarSettings = document.getElementById("sidebarSettings");
+    
+    if (sidebarDashboard) sidebarDashboard.innerHTML = `<i class="fas fa-home"></i> ${translations[language].dashboard}`;
+    if (sidebarAttendance) sidebarAttendance.innerHTML = `<i class="fas fa-calendar-check"></i> ${translations[language].documents}`;
+    if (sidebarEmployees) sidebarEmployees.innerHTML = `<i class="fas fa-users"></i> ${translations[language].profiles}`;
+    if (sidebarReports) sidebarReports.innerHTML = `<i class="fas fa-chart-bar"></i> ${translations[language].reports}`;
+    if (sidebarSettings) sidebarSettings.innerHTML = `<i class="fas fa-cog"></i> ${translations[language].settings}`;
+    
+    // Update action buttons
+    const checkInBtn = document.getElementById("checkInBtn");
+    const manualCheckInBtn = document.getElementById("manualCheckInBtn");
+    const markOvernightBtn = document.getElementById("markOvernightBtn");
+    const markLeaveBtn = document.getElementById("markLeaveBtn");
+    
+    if (checkInBtn) checkInBtn.innerHTML = `<i class="fas fa-sign-in-alt"></i> ${translations[language].checkIn} (Now)`;
+    if (manualCheckInBtn) manualCheckInBtn.innerHTML = `<i class="fas fa-clock"></i> ${translations[language].manualCheckIn}`;
+    if (markOvernightBtn) markOvernightBtn.innerHTML = `<i class="fas fa-moon"></i> ${translations[language].overnight}`;
+    if (markLeaveBtn) markLeaveBtn.innerHTML = `<i class="fas fa-calendar-times"></i> ${translations[language].markLeave}`;
+}
+
+// Close hamburger/footer/language/theme/logout DOMContentLoaded wrapper
+});
+
+</script>
+</body>
+</html>

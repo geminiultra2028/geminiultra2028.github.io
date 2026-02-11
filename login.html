@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Attendance Records</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="login-page">
+    <script>
+        // Restore background immediately from server (or localStorage fallback) to avoid flash of default
+        (async function() {
+            try {
+                const response = await fetch('/api/background');
+                const backgroundData = await response.json();
+                const loginPage = document.querySelector('body.login-page');
+                
+                if (backgroundData.type === 'image' && backgroundData.imageData) {
+                    loginPage.style.background = `url('${backgroundData.imageData}') center/cover no-repeat`;
+                    loginPage.style.backgroundAttachment = 'fixed';
+                } else if (backgroundData.type === 'video' && backgroundData.videoData) {
+                    const video = document.createElement('video');
+                    video.src = backgroundData.videoData;
+                    video.autoplay = true;
+                    video.loop = true;
+                    video.muted = true;
+                    video.style.position = 'fixed';
+                    video.style.top = '0';
+                    video.style.left = '0';
+                    video.style.width = '100%';
+                    video.style.height = '100%';
+                    video.style.objectFit = 'cover';
+                    video.style.zIndex = '-1';
+                    loginPage.insertBefore(video, loginPage.firstChild);
+                    loginPage.style.background = 'transparent';
+                } else if (backgroundData.type === 'color' && backgroundData.color) {
+                    loginPage.style.background = backgroundData.color;
+                } else {
+                    loadBackgroundFromLocalStorage();
+                }
+            } catch (err) {
+                loadBackgroundFromLocalStorage();
+            }
+            
+            function loadBackgroundFromLocalStorage() {
+                const bgType = localStorage.getItem('loginBgType');
+                const loginPage = document.querySelector('body.login-page');
+                
+                if (bgType === 'image') {
+                    const bgData = localStorage.getItem('loginBgData');
+                    if (bgData) {
+                        loginPage.style.background = `url('${bgData}') center/cover no-repeat`;
+                        loginPage.style.backgroundAttachment = 'fixed';
+                    }
+                } else if (bgType === 'video') {
+                    const bgData = localStorage.getItem('loginBgData');
+                    if (bgData) {
+                        const video = document.createElement('video');
+                        video.src = bgData;
+                        video.autoplay = true;
+                        video.loop = true;
+                        video.muted = true;
+                        video.style.position = 'fixed';
+                        video.style.top = '0';
+                        video.style.left = '0';
+                        video.style.width = '100%';
+                        video.style.height = '100%';
+                        video.style.objectFit = 'cover';
+                        video.style.zIndex = '-1';
+                        loginPage.insertBefore(video, loginPage.firstChild);
+                        loginPage.style.background = 'transparent';
+                    }
+                } else if (bgType === 'color') {
+                    const bgColor = localStorage.getItem('loginBgColor');
+                    if (bgColor) {
+                        loginPage.style.background = bgColor;
+                    }
+                }
+            }
+        })();
+    </script>
+    <div class="login-layout">
+        <div class="login-panel">
+            <div class="login-header">
+                <div class="login-logo">
+                    <img src="logo.png" alt="Attendance App Logo">
+                </div>
+                <span class="eyebrow">Welcome back</span>
+                <h1>Attendance</h1>
+            </div>
+
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username / User ID / Email</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                        <input type="text" id="username" class="form-control" placeholder="Enter your username, user ID, or email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock" aria-hidden="true"></i>
+                        <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                    </div>
+                </div>
+
+                <div class="form-group remember-me">
+                    <label>
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                </div>
+
+                <div class="form-options">
+                    <a class="forgot-password" href="#">Forgot password?</a>
+                </div>
+
+                <div class="login-submit">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </div>
+
+                <div id="loginError" class="login-error" style="display: none;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Invalid username or password</span>
+                </div>
+            </form>
+
+            <div class="login-footer">
+                <p>&copy; <strong>2026</strong> – Designed by nIZAm-MIS</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content modal-medium">
+            <span class="close" id="closeForgotPasswordModal">&times;</span>
+            <h3>Forgot Password</h3>
+            <p class="info-text"><i class="fas fa-info-circle"></i> OTP will be sent to your own email address on file.</p>
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <label for="forgotLoginId">Username / User ID / Email</label>
+                    <input type="text" id="forgotLoginId" class="form-control" placeholder="Enter your username, user ID, or email" required>
+                </div>
+                <div class="form-group button-group">
+                    <button type="button" class="btn btn-confirm" id="sendOtpBtn">
+                        <i class="fas fa-paper-plane"></i> Send OTP
+                    </button>
+                    <button type="button" class="btn btn-cancel" id="cancelForgotPasswordBtn">Close</button>
+                </div>
+                <div id="otpSection" style="display: none;">
+                    <div class="form-group">
+                        <label for="otpCode">OTP Code</label>
+                        <input type="text" id="otpCode" class="form-control" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit code" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" class="form-control" required>
+                    </div>
+                    <div class="form-group button-group">
+                        <button type="submit" class="btn btn-confirm">
+                            <i class="fas fa-key"></i> Reset Password
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

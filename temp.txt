@@ -1,0 +1,119 @@
+
+function showOvernightModal() {
+    const modal = document.getElementById('overnightModal');
+    if (modal) {
+        // Always update Shift Start Date with current date
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const currentDate = `${year}-${month}-${day}`;
+
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const currentTime = `${hours}:${minutes}`;
+
+        // Update Shift Start Date
+        const shiftDateInput = document.getElementById('shiftDate');
+        if (shiftDateInput) shiftDateInput.value = currentDate;
+
+        // Update Check-In Time
+        const shiftCheckInTimeInput = document.getElementById('shiftCheckInTime');
+        if (shiftCheckInTimeInput) shiftCheckInTimeInput.value = currentTime;
+
+        // Get current user from session storage
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+
+        // Hide Shift A option for user A, show only Shift B
+        const shiftAButton = document.getElementById('shiftAOvernightBtn');
+        const shiftBButton = document.getElementById('shiftBOvernightBtn');
+
+        if (currentUser.username === 'A') {
+            // Hide Shift A button for user A
+            if (shiftAButton) shiftAButton.style.display = 'none';
+            // Auto-select Shift B for user A
+            if (shiftBButton) {
+                shiftBButton.classList.add('selected');
+                modal.dataset.shiftType = 'B';
+            }
+        } else {
+            // Show both buttons for other users
+            if (shiftAButton) shiftAButton.style.display = 'block';
+            if (shiftBButton) shiftBButton.style.display = 'block';
+        }
+
+        // Get saved state for this overnight shift
+        const savedState = sessionStorage.getItem('overnightShiftState');
+        const submitBtn = document.querySelector('#overnightForm button[type="submit"]');
+
+        if (savedState) {
+            // Restore previous state
+            const state = JSON.parse(savedState);
+            if (submitBtn) {
+                submitBtn.innerHTML = state.buttonLabel;
+                submitBtn.dataset.checkedIn = state.checkedIn;
+                submitBtn.classList.remove('btn-checkout', 'btn-completed');
+                if (state.buttonClass) {
+                    submitBtn.classList.add(state.buttonClass);
+                }
+                submitBtn.disabled = state.disabled;
+            }
+
+            // Restore check-out time if exists
+            if (state.shiftCheckOutTime) {
+                const shiftCheckOutTimeInput = document.getElementById('shiftCheckOutTime');
+                if (shiftCheckOutTimeInput) shiftCheckOutTimeInput.value = state.shiftCheckOutTime;
+            }
+            if (state.shiftNotes) {
+                const shiftNotesInput = document.getElementById('shiftNotes');
+                if (shiftNotesInput) shiftNotesInput.value = state.shiftNotes;
+            }
+
+            // Show check-out time field if in check-out phase
+            if (state.checkedIn === 'true') {
+                document.getElementById('checkOutTimeGroup').style.display = 'block';
+            } else {
+                document.getElementById('checkOutTimeGroup').style.display = 'none';
+            }
+
+            // Restore shift type selection
+            if (state.shiftType) {
+                modal.dataset.shiftType = state.shiftType;
+                document.querySelectorAll('#overnightModal .btn-shift').forEach(btn => {
+                    btn.classList.remove('selected');
+                    if (btn.id === `shift${state.shiftType}OvernightBtn`) {
+                        btn.classList.add('selected');
+                    }
+                });
+            }
+        } else {
+            // First time opening
+            // Hide check-out time field and clear it
+            document.getElementById('checkOutTimeGroup').style.display = 'none';
+            document.getElementById('shiftCheckOutTime').value = '';
+            document.getElementById('shiftNotes').value = '';
+
+            // Reset submit button
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Submit Check-In';
+                submitBtn.dataset.checkedIn = 'false';
+                submitBtn.classList.remove('btn-checkout', 'btn-completed');
+                submitBtn.disabled = false;
+            }
+
+            // Clear shift type selection
+            modal.dataset.shiftType = '';
+            document.querySelectorAll('#overnightModal .btn-shift').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Auto-select Shift B for user A
+            if (currentUser.username === 'A' && shiftBButton) {
+                shiftBButton.classList.add('selected');
+                modal.dataset.shiftType = 'B';
+            }
+        }
+
+        modal.style.display = 'block';
+    }
+}

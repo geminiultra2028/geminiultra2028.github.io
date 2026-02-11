@@ -1,0 +1,23 @@
+ATTENDANCE APP - ISSUES REPORT
+
+GENERAL FUNCTIONALITY
+- Realtime clock and date not working
+- Sidebar menu not functioning
+- Hamburger menu button not working
+- Logout button not working
+- Dark/Light mode toggle not working
+
+BUTTONS/ACTIONS
+- Check-in button not working
+- Shift button not working
+- Manual button not working
+- Mark as Leave button not working
+
+SETTINGS
+- Settings page not working properly
+
+DASHBOARD
+- Yearly records selection not working
+- Year cannot be changed, stuck on monthly view
+
+Please prioritize fixing the dashboard yearly records functionality as it's the main feature that needs to work.
